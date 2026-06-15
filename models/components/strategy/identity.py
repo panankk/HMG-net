@@ -17,7 +17,7 @@ class IdentityGate(BaseStrategy):
         这意味着“所有牙齿都允许移动”，门控机制失效。
         如果模型性能大幅下降，则证明智能门控是必要的。
     """
-    # 🌟 核心修复：加入 input_dim, static_dim, embed_dim 和 **kwargs
+   
     # 用来吸收 build_strategy 工厂统一下发的多余参数，防止 TypeError
     def __init__(self, config=None, input_dim=10, static_dim=4, embed_dim=32, **kwargs):
         """
