@@ -13,11 +13,11 @@ warnings.filterwarnings("ignore")
 # 1. 全局配置
 # ==========================================
 # 路径配置
-RAW_DATA_ROOT = "/home/pa/version4/data/test_data"
-PROCESSED_ROOT = "/home/pa/version4/data/test_data_processed_new_v11"
+RAW_DATA_ROOT = "/path/to/test_data"
+PROCESSED_ROOT = "path/to/test_data_processed"
 # Hull 输出路径 (改为 open3d 生成的 ply)
-HULL_OUTPUT_ROOT = "/home/pa/version4/data/test_data_hulls_5k_v11" 
-REMOVE_JSON_PATH = "/home/pa/version4/remove_idx_summary.json"
+HULL_OUTPUT_ROOT = "path/to/test_data_hulls" 
+REMOVE_JSON_PATH = "path/to/remove_idx_summary.json"
 
 # 牙位定义
 FDI_IDS = [
@@ -28,9 +28,9 @@ FDI_IDS = [
 ]
 FDI_TO_IDX = {fdi: i for i, fdi in enumerate(FDI_IDS)}
 
-# 采样参数 (严格对齐作者)
-HULL_SAMPLE_POINTS = 5000  # 作者用于生成 Hull 的采样数
-FEAT_SAMPLE_POINTS = 1024  # 模型 PointNet 输入的采样数
+# 采样参数
+HULL_SAMPLE_POINTS = 5000 
+FEAT_SAMPLE_POINTS = 1024  
 
 # ==========================================
 # 2. 辅助函数
@@ -73,7 +73,7 @@ def process_case(case_id, case_path, remove_dict):
             if fdi not in FDI_TO_IDX: continue 
             idx = FDI_TO_IDX[fdi]
             
-            # 第一帧标记存在
+           
             if t == 0: teeth_mask[idx] = 1.0
             
             # 解析位姿
@@ -87,7 +87,7 @@ def process_case(case_id, case_path, remove_dict):
             poses_9d[t, idx, :3] = torch.from_numpy(pos)
             poses_9d[t, idx, 3:9] = torch.from_numpy(rot_6d)
 
-    # 🔥 应用拔牙掩码 (Remove IDs)
+    #  应用拔牙掩码 (Remove IDs)
     if case_id in remove_dict:
         remove_fdis = remove_dict[case_id]
         for r_fdi in remove_fdis:
@@ -95,7 +95,7 @@ def process_case(case_id, case_path, remove_dict):
                 r_idx = FDI_TO_IDX[r_fdi]
                 teeth_mask[r_idx] = 0.0 # 标记为拔除
     
-    # --- B. 处理几何 (Open3D 对齐作者精度) ---
+    # --- B. 处理几何 ---
     shape_features = torch.zeros((32, FEAT_SAMPLE_POINTS, 3)) 
     models_dir = os.path.join(case_path, "models")
     
@@ -177,22 +177,22 @@ def run_preprocess():
     if os.path.exists(REMOVE_JSON_PATH):
         with open(REMOVE_JSON_PATH, 'r') as f:
             remove_dict = json.load(f)
-        print(f"✅ Loaded Remove Summary: {len(remove_dict)} cases.")
+        print(f" Loaded Remove Summary: {len(remove_dict)} cases.")
     else:
-        print("⚠️ Warning: remove_idx_summary.json not found!")
+        print(" Warning: remove_idx_summary.json not found!")
         remove_dict = {}
 
     # 获取所有病例
     case_ids = sorted([d for d in os.listdir(RAW_DATA_ROOT) if os.path.isdir(os.path.join(RAW_DATA_ROOT, d))])
     
-    print(f"🚀 Preprocess V12.1 (Open3D Hull 5k) Start...")
+    print(f" Preprocess (Open3D Hull 5k) Start...")
     print(f"   - Hull Output: {HULL_OUTPUT_ROOT}")
     print(f"   - Feat Output: {PROCESSED_ROOT}")
     
     for case_id in tqdm(case_ids):
         process_case(case_id, os.path.join(RAW_DATA_ROOT, case_id), remove_dict)
         
-    print("\n✅ All Done!")
+    print("\n All Done!")
 
 if __name__ == "__main__":
     run_preprocess()
