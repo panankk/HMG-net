@@ -1,49 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Evaluate Vector-valued SSIM / VF-STKSM for orthodontic trajectory motion fields.
-
-This script computes two local vector-field structural similarity metrics:
-
-1) Full Vector-valued SSIM, VSSIM
-   Uses vector-valued mean + vector-valued covariance statistics:
-       L  = (2 <mu_x, mu_y> + C1) / (||mu_x||^2 + ||mu_y||^2 + C1)
-       CS = (2 sigma_xy + C2) / (sigma_x^2 + sigma_y^2 + C2)
-       VSSIM = L * CS
-
-2) Structure-only Vector-valued SSIM, VSSIM-CS
-   Uses only the covariance/contrast-structure term:
-       VSSIM-CS = (2 sigma_xy + C2) / (sigma_x^2 + sigma_y^2 + C2)
-
-For each case and method:
-  - translation motion field: [NORM_STEPS, 32, 3]
-  - rotation motion field:    [NORM_STEPS, 32, 3]
-  - local windows are taken over time x tooth, while xyz is treated as a vector.
-  - output mean scores and save VF-STKSM similarity maps as heatmaps.
-
-Input formats:
-Expert:
-    EXPERT_ROOT/Cxxxx/step1.json, step2.json, ...
-    {"17": [x,y,z,qx,qy,qz,qw], ...}
-
-Method:
-    METHOD_ROOT/Cxxxx/step_000.txt, step_001.txt, ...
-    FDI x y z qx qy qz qw
-
-Run:
-    python3 evaluate_vector_ssim_vfstksm.py
-
-Single case:
-    python3 evaluate_vector_ssim_vfstksm.py --case_id C01002791346
-
-No visualization:
-    python3 evaluate_vector_ssim_vfstksm.py --no_vis
-
-Important:
-  The temporal normalization follows previous scripts:
-    pose trajectory -> step-to-step motion vectors -> linear resampling to 100 steps.
-"""
-
 import os
 import re
 import csv
@@ -66,15 +22,15 @@ import matplotlib.pyplot as plt
 # CONFIG
 # ============================================================
 CONFIG = {
-    "EXPERT_ROOT": "/home/pa/version4/data/test_data",
-    "OUTPUT_DIR": "/home/pa/version-final/vector_ssim_vfstksm_eval",
+    "EXPERT_ROOT": "/path/to/processed_data",
+    "OUTPUT_DIR": "/path/to/output_dir",
 
     "METHODS": [
-        {"name": "HMG-Net", "root": "/home/pa/version-final/inference results-news/inferece results-ab07-new", "format": "auto"},
-        {"name": "DRL",     "root": "/home/pa/version-final/inference results-news/inferece results-ab08-new", "format": "auto"},
-        {"name": "TMDM",    "root": "/home/pa/version-final/inference results-news/inferece results-ab09-new", "format": "auto"},
-        {"name": "IGWO",    "root": "/home/pa/version-final/inference results-news/inferece results-ab05-new", "format": "auto"},
-        {"name": "Neural",  "root": "/home/pa/Other Results/All_Cleaned_Results/Neural", "format": "auto"},
+        {"name": "HMG-Net", "root": "/path/to/HMG_results", "format": "auto"},
+        {"name": "DRL",     "root": "/path/to/DRL_results", "format": "auto"},
+        {"name": "TMDM",    "root": "/path/to/TMDM_results", "format": "auto"},
+        {"name": "IGWO",    "root": "/path/to/IGWO_results", "format": "auto"},
+        {"name": "Neural",  "root": "/path/to/Neural_results", "format": "auto"},
     ],
 
     "NORM_STEPS": 100,
