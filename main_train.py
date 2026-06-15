@@ -10,36 +10,26 @@ from torch.utils.data import DataLoader
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import LambdaLR
 
-# 导入我们的模块化组件
+
 from data import build_dataset
 from models import build_model
 from engine import SequentialFusionLoss, Trainer
 
 def seed_everything(seed=42):
-    """
-    固定所有的随机数种子，确保消融实验的绝对可复现性。
-    """
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed) # 如果你用多张卡
+    torch.cuda.manual_seed_all(seed) 
     
-    # 🔥 这一步非常关键：强迫 cuDNN 使用确定性算法
-    # 牺牲一点点训练速度，换取 100% 的结果可复现
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
 
-# ==========================================
-# ⚙️ 配置解析器 (YAML -> Python Object)
-# ==========================================
-# ==========================================
-# ⚙️ 配置解析器 (YAML -> Python Object)
-# ==========================================
+
 class ConfigNode:
-    """递归将字典转换为可以通过点号 (.) 访问的属性对象"""
+   
     def __init__(self, d):
         for k, v in d.items():
             if isinstance(v, dict):
@@ -48,7 +38,7 @@ class ConfigNode:
                 setattr(self, k, v)
                 
     def get(self, key, default=None):
-        """安全获取属性，防报错"""
+       
         return getattr(self, key, default)
 
 def load_config(yaml_path):
@@ -56,9 +46,7 @@ def load_config(yaml_path):
         cfg_dict = yaml.safe_load(f)
     return ConfigNode(cfg_dict)
 
-# ==========================================
-# 🚀 训练入口
-# ==========================================
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, required=True, help="Path to the yaml config file (e.g., configs/v39_full_model.yaml)")
@@ -71,16 +59,16 @@ def main():
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    print(f"🚀 Launching Training Engine")
-    print(f"📂 Config File: {args.config}")
+    print(f" Launching Training Engine")
+    print(f" Config File: {args.config}")
     
     # 2. 构建数据引擎
     dataset = build_dataset(cfg)
     loader = DataLoader(dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True, num_workers=4, pin_memory=True)
     
-    # 3. 拼装大模型
+    # 3. 拼装
     model = build_model(cfg).to(device)
-    print("✅ Model Built Successfully!")
+    print(" Model Built Successfully!")
     
     # 4. 构建 Loss 和 优化器
     criterion = SequentialFusionLoss().to(device)
@@ -99,13 +87,13 @@ def main():
     # 6. 断点续训逻辑
     start_epoch = 0
     if args.resume:
-        print(f"📦 Resuming from: {args.resume}")
+        print(f" Resuming from: {args.resume}")
         ckpt = torch.load(args.resume, map_location=device, weights_only=False)
         model.load_state_dict(ckpt['model_state_dict'])
         criterion.load_state_dict(ckpt['criterion_state_dict'])
         optimizer.load_state_dict(ckpt['optimizer_state_dict'])
         start_epoch = ckpt['epoch'] + 1
-        print(f"✅ Resumed at Epoch {start_epoch}")
+        print(f" Resumed at Epoch {start_epoch}")
 
     # 7. 启动引擎
     trainer = Trainer(
@@ -115,7 +103,7 @@ def main():
         optimizer=optimizer, 
         scheduler=scheduler, 
         device=device, 
-        config=cfg.TRAIN  # 👈 注意：这里传入 cfg.TRAIN，因为 trainer 需要的参数都在这下面
+        config=cfg.TRAIN  
     )
     
     trainer.train(start_epoch)
