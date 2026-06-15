@@ -25,7 +25,7 @@ MODEL:
   NUM_TEETH: 32
 
 TRAIN:
-  SAVE_DIR: "/home/pa/version-final/checkpoints-new/checkpoints_08-new"
+  SAVE_DIR: "/path/to/save_dir"
   BATCH_SIZE: 32
   NUM_EPOCHS: 400
   STAGE1_EPOCHS: 60             
