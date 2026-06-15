@@ -1,0 +1,40 @@
+DATA:
+  PROCESSED_ROOT: "/path/to/processed_data"
+
+MODEL:
+  BACKBONE:
+    NAME: "MiniPointNet"
+  STRATEGY:
+    NAME: "AdvancedDualStreamMaskHead"
+  HEAD:
+    POS:
+      NAME: "UncertainRegressionHead" 
+    ROT:
+      NAME: "UncertainRegressionHead"  
+
+  WINDOW_SIZE: 1          
+  USE_WINDOW_ATTN: False   
+  USE_SPATIAL_ATTN: True   
+  USE_TOOTH_TYPE: True     
+  
+  D_MODEL: 512
+  NHEAD: 8
+  NUM_LAYERS: 6
+  DROPOUT: 0.1
+  NUM_TEETH: 32
+
+TRAIN:
+  SAVE_DIR: "/path/to/save_dir"
+  BATCH_SIZE: 32
+  NUM_EPOCHS: 400
+  STAGE1_EPOCHS: 60             
+  STAGE2_EPOCHS: 120
+  STAGE3_FREEZE_EPOCHS: 80
+  LEARNING_RATE: 0.001
+  WARMUP_EPOCHS: 15
+
+INFER:
+  UNCERTAINTY_SCALE_FACTOR: 0.0  
+  STOP_THRES_POS: 0.2
+  STOP_THRES_DEG: 3.0
+  MASK_THRESHOLD: 0.5
