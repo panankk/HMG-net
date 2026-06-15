@@ -1,5 +1,5 @@
 DATA:
-  PROCESSED_ROOT: "/home/pa/version4/data/Teeth_simulation_10K_processed_new_v11"
+  PROCESSED_ROOT: "/path/to/processed_data"
 
 MODEL:
   BACKBONE:
@@ -8,18 +8,16 @@ MODEL:
     NAME: "AdvancedDualStreamMaskHead"
   HEAD:
     POS:
-      NAME: "UncertainRegressionHead"  # 🟢 终极解锁：输出 Mu 和 LogVar
+      NAME: "UncertainRegressionHead"  
     ROT:
-      NAME: "UncertainRegressionHead"  # 🟢 终极解锁：输出 Mu 和 LogVar
+      NAME: "UncertainRegressionHead"  
   
-  # ==========================================
-  # 🌟 核心升级：时空解耦与消融实验总开关
-  # ==========================================
-  WINDOW_SIZE: 1           # 🌟 历史滑动窗口大小 (1为无时序，5为五帧联看)
-  USE_WINDOW_ATTN: False    # 🌟 是否启用时序注意力塔 (Temporal Transformer)
+
+  WINDOW_SIZE: 1          
+  USE_WINDOW_ATTN: False    
   USE_GLOBAL_TIME: False
-  USE_SPATIAL_ATTN: True   # 🌟 是否启用空间注意力塔 (Spatial Transformer, 防碰撞核心)
-  USE_TOOTH_TYPE: True     # 🌟 是否启用牙齿类别/身份先验 (Tooth Type Embedding)
+  USE_SPATIAL_ATTN: True   
+  USE_TOOTH_TYPE: True     
   
   D_MODEL: 512
   NHEAD: 8
@@ -31,14 +29,14 @@ TRAIN:
   SAVE_DIR: "/home/pa/version-final/checkpoints-new/checkpoints_09"
   BATCH_SIZE: 32
   NUM_EPOCHS: 400
-  STAGE1_EPOCHS: 60              # 🟢 开启多阶段热启动调度
+  STAGE1_EPOCHS: 60             
   STAGE2_EPOCHS: 120
   STAGE3_FREEZE_EPOCHS: 80
   LEARNING_RATE: 0.001
   WARMUP_EPOCHS: 15
 
 INFER:
-  UNCERTAINTY_SCALE_FACTOR: 1.0  # 🟢 推理启用 Symmetric Uncertainty Scaling
+  UNCERTAINTY_SCALE_FACTOR: 1.0  
   STOP_THRES_POS: 0.2
   STOP_THRES_DEG: 3.0
   MASK_THRESHOLD: 0.5
